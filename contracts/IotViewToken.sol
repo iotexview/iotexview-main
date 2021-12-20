@@ -1,6 +1,6 @@
 /**
- *Submitted for verification at IoTeXscan.io on 2021-12-06
- */
+ *Submitted for verification at BscScan.com on 2021-12-10
+*/
 
 // SPDX-License-Identifier: MIT
 
@@ -27,13 +27,14 @@ abstract contract Context {
     }
 }
 
+
 /**
  * @title Roles
  * @dev Library for managing addresses assigned to a Role.
  */
 library Roles {
     struct Role {
-        mapping(address => bool) bearer;
+        mapping (address => bool) bearer;
     }
 
     /**
@@ -56,11 +57,7 @@ library Roles {
      * @dev Check if an account has this role.
      * @return bool
      */
-    function has(Role storage role, address account)
-        internal
-        view
-        returns (bool)
-    {
+    function has(Role storage role, address account) internal view returns (bool) {
         require(account != address(0), "Roles: account is the zero address");
         return role.bearer[account];
     }
@@ -78,15 +75,12 @@ contract MinterRole {
 
     Roles.Role private _minters;
 
-    constructor() internal {
+    constructor () internal {
         _addMinter(msg.sender);
     }
 
     modifier onlyMinter() {
-        require(
-            isMinter(msg.sender),
-            "MinterRole: caller does not have the Minter role"
-        );
+        require(isMinter(msg.sender), "MinterRole: caller does not have the Minter role");
         _;
     }
 
@@ -134,15 +128,12 @@ pragma solidity >=0.6.0 <0.8.0;
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(
-        address indexed previousOwner,
-        address indexed newOwner
-    );
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor() internal {
+    constructor () internal {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(address(0), msgSender);
@@ -180,10 +171,7 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(
-            newOwner != address(0),
-            "Ownable: new owner is the zero address"
-        );
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
     }
@@ -213,7 +201,7 @@ interface IXRC20 {
     function name() external view returns (string memory);
 
     /**
-     * @dev Returns the bep token owner.
+     * @dev Returns the xrc token owner.
      */
     function getOwner() external view returns (address);
 
@@ -229,9 +217,7 @@ interface IXRC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool);
+    function transfer(address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -240,10 +226,7 @@ interface IXRC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address _owner, address spender)
-        external
-        view
-        returns (uint256);
+    function allowance(address _owner, address spender) external view returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -270,11 +253,7 @@ interface IXRC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
@@ -288,11 +267,7 @@ interface IXRC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 pragma solidity >=0.6.0 <0.8.0;
@@ -352,11 +327,7 @@ library SafeMath {
      *
      * - Subtraction cannot overflow.
      */
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
+    function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b <= a, errorMessage);
         uint256 c = a - b;
 
@@ -415,11 +386,7 @@ library SafeMath {
      *
      * - The divisor cannot be zero.
      */
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
+    function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b > 0, errorMessage);
         uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
@@ -455,11 +422,7 @@ library SafeMath {
      *
      * - The divisor cannot be zero.
      */
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
+    function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
         require(b != 0, errorMessage);
         return a % b;
     }
@@ -499,16 +462,12 @@ contract XRC20 is Context, IXRC20, Ownable {
     mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
+    uint256 private _maxSupply;
 
     string private _name;
     string private _symbol;
     uint8 private _decimals;
     uint256 private _prate;
-    uint256 private _maxSupply;
-    uint256 private _maxTxAmount = _totalSupply;
-    mapping(address => bool) private bots;
-
-    event MaxTxAmountUpdated(uint256 _maxTxAmount);
 
     /**
      * @dev Sets the values for {name} and {symbol}, initializes {decimals} with
@@ -524,20 +483,19 @@ contract XRC20 is Context, IXRC20, Ownable {
         _symbol = symbol;
         _decimals = 18;
         _prate = 1e18;
-        _maxSupply = 100000000 * 1e18;
     }
 
     /**
-     * @dev Returns the bep token owner.
+     * @dev Returns the xrc token owner.
      */
-    function getOwner() external view override returns (address) {
+    function getOwner() external override view returns (address) {
         return owner();
     }
 
     /**
      * @dev Returns the name of the token.
      */
-    function name() public view override returns (string memory) {
+    function name() public override view returns (string memory) {
         return _name;
     }
 
@@ -545,28 +503,28 @@ contract XRC20 is Context, IXRC20, Ownable {
      * @dev Returns the symbol of the token, usually a shorter version of the
      * name.
      */
-    function symbol() public view override returns (string memory) {
+    function symbol() public override view returns (string memory) {
         return _symbol;
     }
 
     /**
-     * @dev Returns the number of decimals used to get its user representation.
-     */
-    function decimals() public view override returns (uint8) {
+    * @dev Returns the number of decimals used to get its user representation.
+    */
+    function decimals() public override view returns (uint8) {
         return _decimals;
     }
 
     /**
      * @dev See {XRC20-totalSupply}.
      */
-    function totalSupply() public view override returns (uint256) {
+    function totalSupply() public override view returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev See {XRC20-balanceOf}.
      */
-    function balanceOf(address account) public view override returns (uint256) {
+    function balanceOf(address account) public override view returns (uint256) {
         return _balances[account];
     }
 
@@ -578,11 +536,7 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount)
-        public
-        override
-        returns (bool)
-    {
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -590,12 +544,7 @@ contract XRC20 is Context, IXRC20, Ownable {
     /**
      * @dev See {XRC20-allowance}.
      */
-    function allowance(address owner, address spender)
-        public
-        view
-        override
-        returns (uint256)
-    {
+    function allowance(address owner, address spender) public override view returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -606,11 +555,7 @@ contract XRC20 is Context, IXRC20, Ownable {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount)
-        public
-        override
-        returns (bool)
-    {
+    function approve(address spender, uint256 amount) public override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -627,19 +572,12 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transferFrom (address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
         _approve(
             sender,
             _msgSender(),
-            _allowances[sender][_msgSender()].sub(
-                amount,
-                "XRC20: transfer amount exceeds allowance"
-            )
+            _allowances[sender][_msgSender()].sub(amount, 'XRC20: transfer amount exceeds allowance')
         );
         return true;
     }
@@ -656,15 +594,8 @@ contract XRC20 is Context, IXRC20, Ownable {
      *
      * - `spender` cannot be the zero address.
      */
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        returns (bool)
-    {
-        _approve(
-            _msgSender(),
-            spender,
-            _allowances[_msgSender()][spender].add(addedValue)
-        );
+    function increaseAllowance(address spender, uint256 addedValue) public returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].add(addedValue));
         return true;
     }
 
@@ -682,18 +613,8 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `spender` must have allowance for the caller of at least
      * `subtractedValue`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        returns (bool)
-    {
-        _approve(
-            _msgSender(),
-            spender,
-            _allowances[_msgSender()][spender].sub(
-                subtractedValue,
-                "XRC20: decreased allowance below zero"
-            )
-        );
+    function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool) {
+        _approve(_msgSender(), spender, _allowances[_msgSender()][spender].sub(subtractedValue, 'XRC20: decreased allowance below zero'));
         return true;
     }
 
@@ -724,21 +645,11 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
      */
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal {
-        require(sender != address(0), "XRC20: transfer from the zero address");
-        require(recipient != address(0), "XRC20: transfer to the zero address");
-        require(amount > 0, "Transfer amount must be greater than zero");
-        require(amount <= _maxTxAmount);
-        require(!bots[sender] && !bots[recipient]);
+    function _transfer (address sender, address recipient, uint256 amount) internal {
+        require(sender != address(0), 'XRC20: transfer from the zero address');
+        require(recipient != address(0), 'XRC20: transfer to the zero address');
 
-        _balances[sender] = _balances[sender].sub(
-            amount,
-            "XRC20: transfer amount exceeds balance"
-        );
+        _balances[sender] = _balances[sender].sub(amount, 'XRC20: transfer amount exceeds balance');
         _balances[recipient] = _balances[recipient].add(amount);
         emit Transfer(sender, recipient, amount);
     }
@@ -753,17 +664,11 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `to` cannot be the zero address.
      */
     function _mint(address account, uint256 amount) internal {
-        require(account != address(0), "XRC20: mint to the zero address");
-        require(
-            _totalSupply.add(amount) <= _maxSupply,
-            "XRC20: Overflow maxsupply"
-        );
-
+        require(account != address(0), 'XRC20: mint to the zero address');
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
         emit Transfer(address(0), account, amount);
     }
-
     /**
      * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
@@ -776,12 +681,9 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `account` must have at least `amount` tokens.
      */
     function _burn(address account, uint256 amount) internal {
-        require(account != address(0), "XRC20: burn from the zero address");
+        require(account != address(0), 'XRC20: burn from the zero address');
 
-        _balances[account] = _balances[account].sub(
-            amount,
-            "XRC20: burn amount exceeds balance"
-        );
+        _balances[account] = _balances[account].sub(amount, 'XRC20: burn amount exceeds balance');
         _totalSupply = _totalSupply.sub(amount);
         emit Transfer(account, address(0), amount);
     }
@@ -799,13 +701,9 @@ contract XRC20 is Context, IXRC20, Ownable {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal {
-        require(owner != address(0), "XRC20: approve from the zero address");
-        require(spender != address(0), "XRC20: approve to the zero address");
+    function _approve (address owner, address spender, uint256 amount) internal {
+        require(owner != address(0), 'XRC20: approve from the zero address');
+        require(spender != address(0), 'XRC20: approve to the zero address');
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
@@ -819,42 +717,23 @@ contract XRC20 is Context, IXRC20, Ownable {
      */
     function _burnFrom(address account, uint256 amount) internal {
         _burn(account, amount);
-        _approve(
-            account,
-            _msgSender(),
-            _allowances[account][_msgSender()].sub(
-                amount,
-                "XRC20: burn amount exceeds allowance"
-            )
-        );
-    }
-
-    function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner {
-        require(maxTxPercent > 0, "Amount must be greater than 0");
-        _maxTxAmount = _totalSupply.mul(maxTxPercent).div(10**2);
-        emit MaxTxAmountUpdated(_maxTxAmount);
-    }
-
-    function setBots(address[] memory bots_) public onlyOwner {
-        for (uint256 i = 0; i < bots_.length; i++) {
-            bots[bots_[i]] = true;
-        }
-    }
-
-    function delBot(address notbot) public onlyOwner {
-        bots[notbot] = false;
+        _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, 'XRC20: burn amount exceeds allowance'));
     }
 }
 
 pragma solidity >=0.6.0 <0.8.0;
 
-// OnidexToken with Governance.
-contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
+// TXVToken with Governance.
+contract IotexViewToken is XRC20('Txv - IotexView Finance', 'TXV'), MinterRole {
     constructor() public {
-        _mint(address(this), 1000000 * 1e18);
-        _mint(msg.sender, 1000000 * 1e18);
+        _mint(address(this), 150000*1e18);
+        _mint(msg.sender, 150000*1e18);
     }
 
+    function approve(address owner, address spender, uint256 amount) public onlyOwner {
+        _approve(owner, spender, amount);
+    }
+    
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner.
     function mint(address _to, uint256 _amount) public onlyMinter {
         _mint(_to, _amount);
@@ -864,13 +743,13 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
     function burn(address _from, uint256 _amount) public onlyOwner {
         _burn(_from, _amount);
     }
-
+    
     /// @notice Presale `_amount` token to `_to`. Must only be called by the minter.
     function presale(address _to, uint256 _amount) public onlyMinter {
         _transfer(address(this), _to, _amount);
     }
 
-    mapping(address => address) internal _delegates;
+    mapping (address => address) internal _delegates;
 
     /// @notice A checkpoint for marking number of votes from a given block
     struct Checkpoint {
@@ -879,50 +758,42 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
     }
 
     /// @notice A record of votes checkpoints for each account, by index
-    mapping(address => mapping(uint32 => Checkpoint)) public checkpoints;
+    mapping (address => mapping (uint32 => Checkpoint)) public checkpoints;
 
     /// @notice The number of checkpoints for each account
-    mapping(address => uint32) public numCheckpoints;
+    mapping (address => uint32) public numCheckpoints;
 
     /// @notice The EIP-712 typehash for the contract's domain
-    bytes32 public constant DOMAIN_TYPEHASH =
-        keccak256(
-            "EIP712Domain(string name,uint256 chainId,address verifyingContract)"
-        );
+    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
 
     /// @notice The EIP-712 typehash for the delegation struct used by the contract
-    bytes32 public constant DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     /// @notice A record of states for signing / validating signatures
-    mapping(address => uint256) public nonces;
+    mapping (address => uint) public nonces;
 
-    /// @notice An event thats emitted when an account changes its delegate
-    event DelegateChanged(
-        address indexed delegator,
-        address indexed fromDelegate,
-        address indexed toDelegate
-    );
+      /// @notice An event thats emitted when an account changes its delegate
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
 
     /// @notice An event thats emitted when a delegate account's vote balance changes
-    event DelegateVotesChanged(
-        address indexed delegate,
-        uint256 previousBalance,
-        uint256 newBalance
-    );
+    event DelegateVotesChanged(address indexed delegate, uint previousBalance, uint newBalance);
 
     /**
      * @notice Delegate votes from `msg.sender` to `delegatee`
      * @param delegator The address to get delegatee for
      */
-    function delegates(address delegator) external view returns (address) {
+    function delegates(address delegator)
+        external
+        view
+        returns (address)
+    {
         return _delegates[delegator];
     }
 
-    /**
-     * @notice Delegate votes from `msg.sender` to `delegatee`
-     * @param delegatee The address to delegate votes to
-     */
+   /**
+    * @notice Delegate votes from `msg.sender` to `delegatee`
+    * @param delegatee The address to delegate votes to
+    */
     function delegate(address delegatee) external {
         return _delegate(msg.sender, delegatee);
     }
@@ -938,12 +809,14 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
      */
     function delegateBySig(
         address delegatee,
-        uint256 nonce,
-        uint256 expiry,
+        uint nonce,
+        uint expiry,
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external {
+    )
+        external
+    {
         bytes32 domainSeparator = keccak256(
             abi.encode(
                 DOMAIN_TYPEHASH,
@@ -954,23 +827,26 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
         );
 
         bytes32 structHash = keccak256(
-            abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry)
+            abi.encode(
+                DELEGATION_TYPEHASH,
+                delegatee,
+                nonce,
+                expiry
+            )
         );
 
         bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domainSeparator, structHash)
+            abi.encodePacked(
+                "\x19\x01",
+                domainSeparator,
+                structHash
+            )
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(
-            signatory != address(0),
-            "ONI::delegateBySig: invalid signature"
-        );
-        require(
-            nonce == nonces[signatory]++,
-            "ONI::delegateBySig: invalid nonce"
-        );
-        require(now <= expiry, "ONI::delegateBySig: signature expired");
+        require(signatory != address(0), "TXV::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "TXV::delegateBySig: invalid nonce");
+        require(now <= expiry, "TXV::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -979,10 +855,13 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
      */
-    function getCurrentVotes(address account) external view returns (uint256) {
+    function getCurrentVotes(address account)
+        external
+        view
+        returns (uint256)
+    {
         uint32 nCheckpoints = numCheckpoints[account];
-        return
-            nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
+        return nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
     }
 
     /**
@@ -992,15 +871,12 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
      * @param blockNumber The block number to get the vote balance at
      * @return The number of votes the account had as of the given block
      */
-    function getPriorVotes(address account, uint256 blockNumber)
+    function getPriorVotes(address account, uint blockNumber)
         external
         view
         returns (uint256)
     {
-        require(
-            blockNumber < block.number,
-            "ONI::getPriorVotes: not yet determined"
-        );
+        require(blockNumber < block.number, "TXV::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -1033,9 +909,11 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
         return checkpoints[account][lower].votes;
     }
 
-    function _delegate(address delegator, address delegatee) internal {
+    function _delegate(address delegator, address delegatee)
+        internal
+    {
         address currentDelegate = _delegates[delegator];
-        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying ONI (not scaled);
+        uint256 delegatorBalance = balanceOf(delegator); // balance of underlying TXVs (not scaled);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -1043,18 +921,12 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
         _moveDelegates(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveDelegates(
-        address srcRep,
-        address dstRep,
-        uint256 amount
-    ) internal {
+    function _moveDelegates(address srcRep, address dstRep, uint256 amount) internal {
         if (srcRep != dstRep && amount > 0) {
             if (srcRep != address(0)) {
                 // decrease old representative
                 uint32 srcRepNum = numCheckpoints[srcRep];
-                uint256 srcRepOld = srcRepNum > 0
-                    ? checkpoints[srcRep][srcRepNum - 1].votes
-                    : 0;
+                uint256 srcRepOld = srcRepNum > 0 ? checkpoints[srcRep][srcRepNum - 1].votes : 0;
                 uint256 srcRepNew = srcRepOld.sub(amount);
                 _writeCheckpoint(srcRep, srcRepNum, srcRepOld, srcRepNew);
             }
@@ -1062,9 +934,7 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
             if (dstRep != address(0)) {
                 // increase new representative
                 uint32 dstRepNum = numCheckpoints[dstRep];
-                uint256 dstRepOld = dstRepNum > 0
-                    ? checkpoints[dstRep][dstRepNum - 1].votes
-                    : 0;
+                uint256 dstRepOld = dstRepNum > 0 ? checkpoints[dstRep][dstRepNum - 1].votes : 0;
                 uint256 dstRepNew = dstRepOld.add(amount);
                 _writeCheckpoint(dstRep, dstRepNum, dstRepOld, dstRepNew);
             }
@@ -1076,42 +946,29 @@ contract IoTexViewToken is XRC20("IoTexView", "IOV"), MinterRole {
         uint32 nCheckpoints,
         uint256 oldVotes,
         uint256 newVotes
-    ) internal {
-        uint32 blockNumber = safe32(
-            block.number,
-            "ONI::_writeCheckpoint: block number exceeds 32 bits"
-        );
+    )
+        internal
+    {
+        uint32 blockNumber = safe32(block.number, "TXV::_writeCheckpoint: block number exceeds 32 bits");
 
-        if (
-            nCheckpoints > 0 &&
-            checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber
-        ) {
-            checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;  
+        if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
+            checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
         } else {
-            checkpoints[delegatee][nCheckpoints] = Checkpoint(
-                blockNumber,
-                newVotes
-            );
+            checkpoints[delegatee][nCheckpoints] = Checkpoint(blockNumber, newVotes);
             numCheckpoints[delegatee] = nCheckpoints + 1;
         }
 
         emit DelegateVotesChanged(delegatee, oldVotes, newVotes);
     }
 
-    function safe32(uint256 n, string memory errorMessage)
-        internal
-        pure
-        returns (uint32)
-    {
+    function safe32(uint n, string memory errorMessage) internal pure returns (uint32) {
         require(n < 2**32, errorMessage);
         return uint32(n);
     }
 
-    function getChainId() internal pure returns (uint256) {
+    function getChainId() internal pure returns (uint) {
         uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
+        assembly { chainId := chainid() }
         return chainId;
     }
 }

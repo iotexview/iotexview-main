@@ -8,7 +8,7 @@ require('dotenv').config();
 
 const TOKENNAME = '';
 const TOKENSYMBOL = '';
-
+// masterchef deploy
 const deployTokenContract = async () => {
  
     const TokenContract = await hre.ethers.getContractFactory('IoTexViewToken');
